@@ -1,0 +1,15 @@
+# Node
+node_modules
+dist
+.next
+coverage
+
+# Env
+.env
+.env.*
+
+# Prisma
+prisma/dev.db
+
+# OS
+.DS_Store
