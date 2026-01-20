@@ -9,7 +9,7 @@ const roles = [
 
 export default function RBAC() {
   return (
-    <section id="security" className="relative z-[2] pt-20 md:pt-28">
+    <section id="security" className="relative z-2 pt-20 md:pt-28">
       <div className="mx-auto max-w-6xl px-4">
         <Reveal>
           <h2 className="text-2xl md:text-4xl font-semibold tracking-tight">

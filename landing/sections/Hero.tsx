@@ -6,7 +6,7 @@ import Reveal from "@/components/Reveal";
 
 export default function Hero() {
   return (
-    <section className="relative z-[2] pt-32 md:pt-40">
+    <section className="relative z-2 pt-32 md:pt-40">
       <div className="mx-auto max-w-6xl px-4">
         <Reveal>
           <div className="inline-flex items-center gap-2 rounded-full glass px-4 py-2 text-xs text-muted">

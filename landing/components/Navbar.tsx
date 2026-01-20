@@ -4,7 +4,7 @@ import MagneticButton from "./MagneticButton";
 
 export default function Navbar() {
   return (
-    <header className="fixed left-0 right-0 top-0 z-[50]">
+    <header className="fixed left-0 right-0 top-0 z-50">
       <div className="mx-auto max-w-6xl px-4">
         <div className="mt-4 flex items-center justify-between rounded-2xl px-4 py-3 glass">
           <div className="flex items-center gap-2">

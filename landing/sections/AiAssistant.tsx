@@ -12,7 +12,7 @@ const prompts = [
 
 export default function AiAssistant() {
   return (
-    <section id="ai" className="relative z-[2] pt-20 md:pt-28">
+    <section id="ai" className="relative z-2 pt-20 md:pt-28">
       <div className="mx-auto max-w-6xl px-4">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           <div className="lg:col-span-5">

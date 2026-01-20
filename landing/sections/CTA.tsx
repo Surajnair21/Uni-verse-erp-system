@@ -3,7 +3,7 @@ import MagneticButton from "@/components/MagneticButton";
 
 export default function CTA() {
   return (
-    <section id="cta" className="relative z-[2] py-20 md:py-28">
+    <section id="cta" className="relative z-2 py-20 md:py-28">
       <div className="mx-auto max-w-6xl px-4">
         <Reveal>
           <div className="card rounded-[2.25rem] p-8 md:p-12 overflow-hidden relative">
