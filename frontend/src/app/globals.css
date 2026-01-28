@@ -1,0 +1,39 @@
+@import "tailwindcss";
+
+:root {
+  --uv-bg: 10 12 20;            /* deep navy */
+  --uv-surface: 255 255 255;    /* used with opacity */
+  --uv-border: 255 255 255;
+  --uv-text: 241 245 249;       /* slate-100 */
+  --uv-muted: 148 163 184;      /* slate-400 */
+
+  --uv-blue: 56 189 248;        /* sky-400-ish */
+  --uv-blue-deep: 30 58 138;    /* blue-900-ish */
+  --uv-orange: 249 115 22;      /* orange-500 */
+  --uv-orange-soft: 255 186 140;/* soft orange highlight */
+}
+.uv-glass {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.10);
+  backdrop-filter: blur(10px);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
