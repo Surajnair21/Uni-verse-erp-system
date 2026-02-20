@@ -6,6 +6,10 @@ import morgan from 'morgan'
 import { authRouter } from './modules/auth/auth.routes'
 import { masterRouter } from './modules/master/master.routes'
 import { errorHandler, notFound } from './middlewares/errorHandler'
+import { usersRouter } from "./modules/users/users.routes";
+import { allocationsRouter } from "./modules/allocations/allocations.routes";
+import { studentsRouter } from "./modules/students/students.routes";
+import attendanceRoutes from "./modules/attendance/attendance.routes";
 
 const app = express()
 
@@ -20,7 +24,10 @@ app.get('/health', (_, res) => {
 
 app.use('/api/auth', authRouter)
 app.use('/api/master', masterRouter)
-
+app.use('/api/users', usersRouter)
+app.use('/api/allocations', allocationsRouter)
+app.use('/api/students', studentsRouter)
+app.use('/api/attendance', attendanceRoutes)
 app.use(notFound)
 app.use(errorHandler)
 

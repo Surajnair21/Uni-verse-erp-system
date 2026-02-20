@@ -7,7 +7,6 @@ datasource db {
   provider = "postgresql"
 }
 
-
 enum Role {
   ADMIN
   HOD
@@ -16,11 +15,11 @@ enum Role {
 }
 
 model User {
-  id           String   @id @default(cuid())
+  id           String @id @default(cuid())
   name         String
-  email        String   @unique
+  email        String @unique
   passwordHash String
-  role         Role     @default(STUDENT)
+  role         Role   @default(STUDENT)
 
   // Optional scope for HOD/FACULTY
   departmentId String?
@@ -28,37 +27,39 @@ model User {
 
   studentProfile StudentProfile?
   facultyProfile FacultyProfile?
-  
-  enrollments  Enrollment[] @relation("studentEnrollments")
+
+  enrollments        Enrollment[]               @relation("studentEnrollments")
   facultyAllocations FacultySubjectAllocation[] @relation("facultyAllocations")
+  attendanceSessions AttendanceSession[]
+  attendanceRecords  AttendanceRecord[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model Department {
-  id        String   @id @default(cuid())
-  name      String   @unique
-  code      String   @unique
+  id   String @id @default(cuid())
+  name String @unique
+  code String @unique
 
-  users     User[]
-  programs  Program[]
-  subjects  Subject[]
-  sections  Section[]
+  users    User[]
+  programs Program[]
+  subjects Subject[]
+  sections Section[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model Program {
-  id           String @id @default(cuid())
-  name         String
-  code         String @unique
+  id   String @id @default(cuid())
+  name String
+  code String @unique
 
   departmentId String
   department   Department @relation(fields: [departmentId], references: [id])
 
-  courses      Course[]
+  courses Course[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -67,9 +68,9 @@ model Program {
 }
 
 model Course {
-  id        String @id @default(cuid())
-  name      String
-  code      String @unique
+  id   String @id @default(cuid())
+  name String
+  code String @unique
 
   programId String
   program   Program @relation(fields: [programId], references: [id])
@@ -83,8 +84,8 @@ model Course {
 }
 
 model Semester {
-  id       String @id @default(cuid())
-  number   Int
+  id     String @id @default(cuid())
+  number Int
 
   courseId String
   course   Course @relation(fields: [courseId], references: [id])
@@ -99,18 +100,20 @@ model Semester {
 }
 
 model Section {
-  id           String @id @default(cuid())
-  name         String // e.g., A, B
-  batchYear    Int    // e.g., 2025
+  id        String @id @default(cuid())
+  name      String // e.g., A, B
+  batchYear Int // e.g., 2025
 
   departmentId String
   department   Department @relation(fields: [departmentId], references: [id])
 
-  semesterId   String
-  semester     Semester @relation(fields: [semesterId], references: [id])
+  semesterId String
+  semester   Semester @relation(fields: [semesterId], references: [id])
 
-  enrollments  Enrollment[]
-  allocations  FacultySubjectAllocation[]
+  enrollments        Enrollment[]
+  allocations        FacultySubjectAllocation[]
+  studentProfiles    StudentProfile[]
+  attendanceSessions AttendanceSession[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -121,15 +124,16 @@ model Section {
 }
 
 model Subject {
-  id           String @id @default(cuid())
-  name         String
-  code         String @unique
-  credits      Int
+  id      String @id @default(cuid())
+  name    String
+  code    String @unique
+  credits Int
 
   departmentId String
   department   Department @relation(fields: [departmentId], references: [id])
 
-  allocations  FacultySubjectAllocation[]
+  allocations        FacultySubjectAllocation[]
+  attendanceSessions AttendanceSession[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -138,16 +142,18 @@ model Subject {
 }
 
 model FacultyProfile {
-  id        String @id @default(cuid())
-  userId    String @unique
-  user      User   @relation(fields: [userId], references: [id])
+  id         String  @id @default(cuid())
+  userId     String  @unique
+  user       User    @relation(fields: [userId], references: [id])
   employeeId String? @unique
 }
 
 model StudentProfile {
-  id        String @id @default(cuid())
-  userId    String @unique
-  user      User   @relation(fields: [userId], references: [id])
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id])
+  sectionId String?
+  section   Section? @relation(fields: [sectionId], references: [id])
 
   rollNo    String? @unique
   batchYear Int?
@@ -168,7 +174,7 @@ model Enrollment {
 }
 
 model FacultySubjectAllocation {
-  id        String @id @default(cuid())
+  id String @id @default(cuid())
 
   facultyId String
   faculty   User   @relation(fields: [facultyId], references: [id], name: "facultyAllocations")
@@ -184,4 +190,44 @@ model FacultySubjectAllocation {
   @@unique([facultyId, subjectId, sectionId])
   @@index([subjectId])
   @@index([sectionId])
+}
+
+model AttendanceSession {
+  id        String   @id @default(cuid())
+  date      DateTime // store date at 00:00 (normalized)
+  sectionId String
+  subjectId String
+  facultyId String
+  createdAt DateTime @default(now())
+
+  section Section @relation(fields: [sectionId], references: [id])
+  subject Subject @relation(fields: [subjectId], references: [id])
+  faculty User    @relation(fields: [facultyId], references: [id])
+
+  records AttendanceRecord[]
+
+  @@unique([date, sectionId, subjectId]) // prevents duplicate session same day
+  @@index([sectionId, subjectId])
+  @@index([facultyId, date])
+}
+
+model AttendanceRecord {
+  id        String           @id @default(cuid())
+  sessionId String
+  studentId String
+  status    AttendanceStatus @default(PRESENT)
+  markedAt  DateTime         @default(now())
+
+  session AttendanceSession @relation(fields: [sessionId], references: [id])
+  student User              @relation(fields: [studentId], references: [id])
+
+  @@unique([sessionId, studentId]) // one mark per student per session
+  @@index([studentId])
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  LATE
+  EXCUSED
 }
