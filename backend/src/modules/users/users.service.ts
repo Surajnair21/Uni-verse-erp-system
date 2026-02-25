@@ -62,7 +62,27 @@ export async function listUsers(role?: "ADMIN" | "HOD" | "FACULTY" | "STUDENT") 
       role: true,
       departmentId: true,
       department: { select: { id: true, name: true, code: true } },
-      studentProfile: { select: { rollNo: true, batchYear: true } },
+      studentProfile: {
+        select: {
+          rollNo: true,
+          batchYear: true,
+          sectionId: true,
+          section: {
+            select: {
+              id: true,
+              name: true,
+              batchYear: true,
+              department: { select: { id: true, name: true, code: true } },
+              semester: {
+                select: {
+                  number: true,
+                  course: { select: { code: true, name: true } },
+                },
+              },
+            },
+          },
+        },
+      },
       createdAt: true,
     },
     orderBy: { createdAt: "desc" },

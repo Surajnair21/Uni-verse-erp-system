@@ -38,16 +38,21 @@ export const AttendanceService = {
       throw new Error("You are not allocated to this section & subject.");
     }
 
-    // Validate students belong to this section
-    const enrolledStudents = await prisma.enrollment.findMany({
-      where: { sectionId },
-      select: { studentId: true }
+    // Validate students belong to this section via StudentProfile.sectionId
+    const sectionStudents = await prisma.user.findMany({
+      where: {
+        role: "STUDENT",
+        studentProfile: {
+          sectionId,
+        },
+      },
+      select: { id: true },
     });
 
-    const enrolledIds = enrolledStudents.map(s => s.studentId);
+    const allowedIds = sectionStudents.map((s) => s.id);
 
     for (const record of records) {
-      if (!enrolledIds.includes(record.studentId)) {
+      if (!allowedIds.includes(record.studentId)) {
         throw new Error(`Student ${record.studentId} not in section.`);
       }
     }
@@ -96,20 +101,32 @@ export const AttendanceService = {
   },
 
   async getSectionStudents(sectionId: string) {
-    const students = await prisma.enrollment.findMany({
-      where: { sectionId },
-      include: {
-        student: {
+    const students = await prisma.user.findMany({
+      where: {
+        role: "STUDENT",
+        studentProfile: {
+          sectionId,
+        },
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        studentProfile: {
           select: {
-            id: true,
-            name: true,
-            email: true
-          }
-        }
-      }
+            rollNo: true,
+          },
+        },
+      },
+      orderBy: { name: "asc" },
     });
 
-    return students.map(s => s.student);
+    return students.map((s) => ({
+      id: s.id,
+      name: s.name,
+      email: s.email,
+      rollNo: s.studentProfile?.rollNo ?? null,
+    }));
   },
 
   async getStudentSummary(studentId: string) {

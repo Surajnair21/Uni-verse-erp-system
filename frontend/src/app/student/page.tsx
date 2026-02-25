@@ -31,7 +31,7 @@ export default function StudentHome() {
       setAllocations(al);
     } catch (e: any) {
       setErr(e?.message || "Failed to load student dashboard");
-    } finally {
+    } finally {                          
       setLoading(false);
     }
   }

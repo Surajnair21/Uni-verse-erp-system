@@ -1,5 +1,7 @@
 "use client";
 
+import Protected from "@/components/Protected";
+import DashboardShell from "@/components/dashboard/DashboardShell";
 import { useEffect, useMemo, useState } from "react";
 import { apiFetch } from "../../../lib/api";
 
@@ -200,159 +202,160 @@ export default function FacultyAttendancePage() {
   }
 
   return (
-    <div className="p-6 space-y-5">
-      <div className="flex items-start justify-between gap-4 flex-wrap">
-        <div>
-          <h1 className="text-2xl font-semibold text-slate-900">Attendance</h1>
-          <p className="text-slate-600 mt-1">
-            Select your section + subject, mark statuses, and save.
-          </p>
-        </div>
-
-        <button
-          onClick={onSave}
-          disabled={saving || loading}
-          className="px-4 py-2 rounded-xl bg-orange-600 text-white font-medium hover:bg-orange-700 disabled:opacity-60"
-        >
-          {saving ? "Saving..." : "Save Attendance"}
-        </button>
-      </div>
-
-      {toast && (
-        <div
-          className={[
-            "border rounded-xl px-4 py-3",
-            toast.type === "success"
-              ? "bg-green-50 border-green-200 text-green-900"
-              : "bg-red-50 border-red-200 text-red-900",
-          ].join(" ")}
-        >
-          {toast.msg}
-        </div>
-      )}
-
-      <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          {/* Section */}
-          <div className="space-y-1">
-            <label className="text-sm font-medium text-slate-700">Section</label>
-            <select
-              value={selectedSectionId}
-              onChange={(e) => setSelectedSectionId(e.target.value)}
-              className="w-full border border-slate-200 rounded-xl px-3 py-2 bg-white"
+    <Protected allow={["FACULTY"]}>
+      <DashboardShell
+        role="FACULTY"
+        pageTitle="Attendance"
+        pageSubtitle="Select your section + subject, mark statuses, and save."
+      >
+        <div className="space-y-5">
+          <div className="flex items-start justify-between gap-4 flex-wrap">
+            <button
+              onClick={onSave}
+              disabled={saving || loading}
+              className="px-4 py-2 rounded-xl bg-orange-600 text-white font-medium hover:bg-orange-700 disabled:opacity-60"
             >
-              {sections.length === 0 && <option value="">No sections</option>}
-              {sections.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.label}
-                </option>
-              ))}
-            </select>
+              {saving ? "Saving..." : "Save Attendance"}
+            </button>
           </div>
 
-          {/* Subject */}
-          <div className="space-y-1">
-            <label className="text-sm font-medium text-slate-700">Subject</label>
-            <select
-              value={selectedSubjectId}
-              onChange={(e) => setSelectedSubjectId(e.target.value)}
-              className="w-full border border-slate-200 rounded-xl px-3 py-2 bg-white"
+          {toast && (
+            <div
+              className={[
+                "border rounded-xl px-4 py-3",
+                toast.type === "success"
+                  ? "bg-green-50 border-green-200 text-green-900"
+                  : "bg-red-50 border-red-200 text-red-900",
+              ].join(" ")}
             >
-              {subjectsForSelectedSection.length === 0 && (
-                <option value="">No subjects</option>
-              )}
-              {subjectsForSelectedSection.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Date */}
-          <div className="space-y-1">
-            <label className="text-sm font-medium text-slate-700">Date</label>
-            <input
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              className="w-full border border-slate-200 rounded-xl px-3 py-2 bg-white"
-            />
-          </div>
-
-          {/* Quick actions */}
-          <div className="space-y-1">
-            <label className="text-sm font-medium text-slate-700">Quick set</label>
-            <div className="flex gap-2 flex-wrap">
-              <button
-                onClick={() => setAll("PRESENT")}
-                className="px-3 py-2 text-sm rounded-xl border border-slate-200 hover:bg-slate-50"
-              >
-                All Present
-              </button>
-              <button
-                onClick={() => setAll("ABSENT")}
-                className="px-3 py-2 text-sm rounded-xl border border-slate-200 hover:bg-slate-50"
-              >
-                All Absent
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-5 border-t border-slate-200 pt-4">
-          {loading ? (
-            <div className="text-slate-600">Loading…</div>
-          ) : students.length === 0 ? (
-            <div className="text-slate-600">No students found for this section.</div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full text-sm">
-                <thead>
-                  <tr className="text-left text-slate-600">
-                    <th className="py-2 pr-4">Student</th>
-                    <th className="py-2 pr-4">Email</th>
-                    <th className="py-2 pr-4">Roll No</th>
-                    <th className="py-2 pr-4">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {students.map((s) => {
-                    const st = statusMap[s.id] || "PRESENT";
-                    return (
-                      <tr key={s.id} className="border-t border-slate-100">
-                        <td className="py-3 pr-4 font-medium text-slate-900">{s.name}</td>
-                        <td className="py-3 pr-4 text-slate-700">{s.email}</td>
-                        <td className="py-3 pr-4 text-slate-700">{s.rollNo || "-"}</td>
-                        <td className="py-3 pr-4">
-                          <div className="flex gap-2 flex-wrap">
-                            {STATUS_OPTIONS.map((opt) => (
-                              <button
-                                key={opt}
-                                onClick={() =>
-                                  setStatusMap((prev) => ({ ...prev, [s.id]: opt }))
-                                }
-                                className={[
-                                  "px-3 py-1.5 rounded-full border text-xs font-semibold",
-                                  opt === st
-                                    ? statusPill(opt)
-                                    : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50",
-                                ].join(" ")}
-                              >
-                                {opt}
-                              </button>
-                            ))}
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+              {toast.msg}
             </div>
           )}
+
+          <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              {/* Section */}
+              <div className="space-y-1">
+                <label className="text-sm font-medium text-slate-700">Section</label>
+                <select
+                  value={selectedSectionId}
+                  onChange={(e) => setSelectedSectionId(e.target.value)}
+                  className="w-full border border-slate-200 rounded-xl px-3 py-2 bg-white"
+                >
+                  {sections.length === 0 && <option value="">No sections</option>}
+                  {sections.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Subject */}
+              <div className="space-y-1">
+                <label className="text-sm font-medium text-slate-700">Subject</label>
+                <select
+                  value={selectedSubjectId}
+                  onChange={(e) => setSelectedSubjectId(e.target.value)}
+                  className="w-full border border-slate-200 rounded-xl px-3 py-2 bg-white"
+                >
+                  {subjectsForSelectedSection.length === 0 && (
+                    <option value="">No subjects</option>
+                  )}
+                  {subjectsForSelectedSection.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Date */}
+              <div className="space-y-1">
+                <label className="text-sm font-medium text-slate-700">Date</label>
+                <input
+                  type="date"
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                  className="w-full border border-slate-200 rounded-xl px-3 py-2 bg-white"
+                />
+              </div>
+
+              {/* Quick actions */}
+              <div className="space-y-1">
+                <label className="text-sm font-medium text-slate-700">Quick set</label>
+                <div className="flex gap-2 flex-wrap">
+                  <button
+                    onClick={() => setAll("PRESENT")}
+                    className="px-3 py-2 text-sm rounded-xl border border-slate-200 hover:bg-slate-50"
+                  >
+                    All Present
+                  </button>
+                  <button
+                    onClick={() => setAll("ABSENT")}
+                    className="px-3 py-2 text-sm rounded-xl border border-slate-200 hover:bg-slate-50"
+                  >
+                    All Absent
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-5 border-t border-slate-200 pt-4">
+              {loading ? (
+                <div className="text-slate-600">Loading…</div>
+              ) : students.length === 0 ? (
+                <div className="text-slate-600">No students found for this section.</div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="min-w-full text-sm">
+                    <thead>
+                      <tr className="text-left text-slate-600">
+                        <th className="py-2 pr-4">Student</th>
+                        <th className="py-2 pr-4">Email</th>
+                        <th className="py-2 pr-4">Roll No</th>
+                        <th className="py-2 pr-4">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {students.map((s) => {
+                        const st = statusMap[s.id] || "PRESENT";
+                        return (
+                          <tr key={s.id} className="border-t border-slate-100">
+                            <td className="py-3 pr-4 font-medium text-slate-900">{s.name}</td>
+                            <td className="py-3 pr-4 text-slate-700">{s.email}</td>
+                            <td className="py-3 pr-4 text-slate-700">{s.rollNo || "-"}</td>
+                            <td className="py-3 pr-4">
+                              <div className="flex gap-2 flex-wrap">
+                                {STATUS_OPTIONS.map((opt) => (
+                                  <button
+                                    key={opt}
+                                    onClick={() =>
+                                      setStatusMap((prev) => ({ ...prev, [s.id]: opt }))
+                                    }
+                                    className={[
+                                      "px-3 py-1.5 rounded-full border text-xs font-semibold",
+                                      opt === st
+                                        ? statusPill(opt)
+                                        : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50",
+                                    ].join(" ")}
+                                  >
+                                    {opt}
+                                  </button>
+                                ))}
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
+      </DashboardShell>
+    </Protected>
   );
 }

@@ -18,6 +18,7 @@ const nav = [
   { href: "/admin", label: "Overview", icon: LayoutGrid },
   { href: "/admin/master", label: "Master Data", icon: Layers3 },
   { href: "/admin/users", label: "Users", icon: Users },
+  { href: "/admin/student-sections", label: "Student Sections", icon: Users },
   { href: "/admin/allocations", label: "Allocations", icon: BookOpen },
 ];
 
