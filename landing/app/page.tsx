@@ -90,7 +90,7 @@ function Navbar() {
   }, [])
   const glass = { background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', border: '1px solid rgba(255,255,255,0.08)' } as const
   const links = ['Features', 'Roles', 'AI', 'Tech Stack']
-  const LOGIN_URL = 'http://localhost:3001/login'
+  const LOGIN_URL = 'http://localhost:3000/login'
   return (
     <nav style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50, transition: 'all 0.4s ease', ...(scrolled ? { ...glass, padding: '12px 0' } : { padding: '24px 0' }) }}>
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -161,7 +161,7 @@ function Hero() {
   const [mounted, setMounted] = useState(false)
   useEffect(() => { const t = setTimeout(() => setMounted(true), 80); return () => clearTimeout(t) }, [])
   const fadeUp = (delay: number) => ({ opacity: mounted ? 1 : 0, transform: mounted ? 'translateY(0)' : 'translateY(32px)', transition: `opacity 0.7s ease ${delay}ms, transform 0.7s ease ${delay}ms` })
-  const LOGIN_URL = 'http://localhost:3001/login'
+  const LOGIN_URL = 'http://localhost:3000/login'
   return (
     <section style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '120px 24px 80px', position: 'relative', overflow: 'hidden', textAlign: 'center' }}>
       <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', width: 800, height: 800, borderRadius: '50%', background: 'radial-gradient(circle, rgba(79,142,247,0.07) 0%, rgba(139,92,246,0.04) 40%, transparent 70%)', pointerEvents: 'none' }} />
@@ -605,7 +605,7 @@ function Testimonials() {
 
 function CTA() {
   const { ref, inView } = useInView()
-  const LOGIN_URL = 'http://localhost:3001/login'
+  const LOGIN_URL = 'http://localhost:3000/login'
   return (
     <section style={{ padding: '80px 24px 120px' }}>
       <div ref={ref} style={{ maxWidth: 860, margin: '0 auto', opacity: inView ? 1 : 0, transform: inView ? 'scale(1)' : 'scale(0.95)', transition: 'all 0.8s ease' }}>
@@ -642,7 +642,7 @@ function CTA() {
 }
 
 function Footer() {
-  const LOGIN_URL = 'http://localhost:3001/login'
+  const LOGIN_URL = 'http://localhost:3000/login'
   return (
     <footer style={{ padding: '32px 24px 48px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
       <div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 20 }}>
