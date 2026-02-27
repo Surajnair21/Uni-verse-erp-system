@@ -43,6 +43,7 @@ const PERMISSIONS: Record<Role, Partial<Record<Resource, Action[]>>> = {
     semesters: ['read'],
     sections: ['read'],
     attendance: ['read'],
+    allocations: ["read"],
   },
 
   FACULTY: {
@@ -66,6 +67,7 @@ const PERMISSIONS: Record<Role, Partial<Record<Resource, Action[]>>> = {
     semesters: ['read'],
     sections: ['read'],
     attendance: ['read'],
+    allocations: ["read"],
   },
 }
 

@@ -7,7 +7,11 @@ import { z } from "zod";
 export const studentsRouter = Router();
 studentsRouter.use(requireAuth);
 
-// Admin: assign student -> section
+/*
+|--------------------------------------------------------------------------
+| Admin: assign student -> section
+|--------------------------------------------------------------------------
+*/
 studentsRouter.put(
   "/:userId/assign-section",
   can("update", "users"),
@@ -23,21 +27,19 @@ studentsRouter.put(
         .json({ message: "Invalid payload", errors: parsed.error.flatten() });
     }
 
-    // ✅ FIX: normalize param (string | string[])
     const userIdRaw = req.params.userId as string | string[];
     const userId = Array.isArray(userIdRaw) ? userIdRaw[0] : userIdRaw;
 
-    // ensure user is a student
-    const u = await prisma.user.findUnique({
+    // Ensure user exists and is student
+    const user = await prisma.user.findUnique({
       where: { id: userId },
       select: { id: true, role: true },
     });
 
-    if (!u || u.role !== "STUDENT") {
+    if (!user || user.role !== "STUDENT") {
       return res.status(400).json({ message: "User is not a student" });
     }
 
-    // ✅ Prisma will accept sectionId ONLY after you updated schema + ran generate
     const updated = await prisma.studentProfile.upsert({
       where: { userId },
       update: { sectionId: parsed.data.sectionId },
@@ -49,8 +51,17 @@ studentsRouter.put(
   }
 );
 
-// Student: get my profile (section)
-studentsRouter.get("/me", can("read", "users"), async (req: any, res) => {
+/*
+|--------------------------------------------------------------------------
+| Student: get my own profile
+|--------------------------------------------------------------------------
+*/
+studentsRouter.get("/me", async (req: any, res) => {
+  // Only students should access this route
+  if (req.user.role !== "STUDENT") {
+    return res.status(403).json({ message: "Access denied" });
+  }
+
   const me = await prisma.user.findUnique({
     where: { id: req.user.id },
     select: {
@@ -62,17 +73,21 @@ studentsRouter.get("/me", can("read", "users"), async (req: any, res) => {
         select: {
           rollNo: true,
           batchYear: true,
-          sectionId: true, // ✅ will exist after schema update
+          sectionId: true,
           section: {
             select: {
               id: true,
               name: true,
               batchYear: true,
-              department: { select: { id: true, name: true, code: true } },
+              department: {
+                select: { id: true, name: true, code: true },
+              },
               semester: {
                 select: {
                   number: true,
-                  course: { select: { code: true, name: true } },
+                  course: {
+                    select: { code: true, name: true },
+                  },
                 },
               },
             },
@@ -81,6 +96,10 @@ studentsRouter.get("/me", can("read", "users"), async (req: any, res) => {
       },
     },
   });
+
+  if (!me) {
+    return res.status(404).json({ message: "User not found" });
+  }
 
   return res.json(me);
 });

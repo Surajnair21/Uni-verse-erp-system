@@ -12,14 +12,16 @@ const router = Router();
 router.post(
   "/sessions",
   requireAuth,
-  can('create', 'attendance'),
+  can("create", "attendance"),
   async (req: any, res) => {
     try {
       const parsed = createSessionSchema.parse(req.body);
+
       const result = await AttendanceService.markSession(
-        req.user.id,
+        req.user, // ✅ pass full user object
         parsed
       );
+
       res.json(result);
     } catch (err: any) {
       res.status(400).json({ error: err.message });
@@ -28,7 +30,7 @@ router.post(
 );
 
 /**
- * Faculty: Get students in section
+ * Get students in section (Scoped Access)
  */
 router.get(
   "/section/:sectionId/students",
@@ -36,11 +38,13 @@ router.get(
   async (req: any, res) => {
     try {
       const students = await AttendanceService.getSectionStudents(
+        req.user, // ✅ pass full user
         req.params.sectionId
       );
+
       res.json(students);
     } catch (err: any) {
-      res.status(400).json({ error: err.message });
+      res.status(403).json({ error: err.message });
     }
   }
 );
@@ -54,11 +58,12 @@ router.get(
   async (req: any, res) => {
     try {
       const summary = await AttendanceService.getStudentSummary(
-        req.user.id
+        req.user // ✅ pass full user
       );
+
       res.json(summary);
     } catch (err: any) {
-      res.status(400).json({ error: err.message });
+      res.status(403).json({ error: err.message });
     }
   }
 );
