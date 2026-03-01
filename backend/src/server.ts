@@ -1,16 +1,17 @@
-import app from './app'
-import { ensureAdmin } from './modules/auth/auth.service'
-import 'dotenv/config'
+import app from "./app";
+import { ensureAdmin } from "./modules/auth/auth.service";
+import { ensureSeed } from "./seed/ensureSeed";
+import "dotenv/config";
 
 const env = {
-  ADMIN_EMAIL: process.env.ADMIN_EMAIL,
-  PORT: process.env.PORT ?? '3002',
-}
+  PORT: process.env.PORT ?? "3002",
+};
 
-;(async () => {
-  await ensureAdmin()
+(async () => {
+  await ensureAdmin();  // existing admin seeding
+  await ensureSeed();   // ✅ new full seeding (only if DB empty)
 
   app.listen(Number(env.PORT), () => {
-    console.log(`🚀 Backend running on port ${env.PORT}`)
-  })
-})()
+    console.log(`🚀 Backend running on port ${env.PORT}`);
+  });
+})();
