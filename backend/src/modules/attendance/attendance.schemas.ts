@@ -4,6 +4,7 @@ export const createSessionSchema = z.object({
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   sectionId: z.string(),
   subjectId: z.string(),
+  timetableSlotId: z.string(),
   records: z.array(
     z.object({
       studentId: z.string(),

@@ -20,6 +20,7 @@ const nav = [
   { href: "/admin/users", label: "Users", icon: Users },
   { href: "/admin/student-sections", label: "Student Sections", icon: Users },
   { href: "/admin/allocations", label: "Allocations", icon: BookOpen },
+  { href: "/admin/timetable", label: "Timetable", icon: CalendarDays },
 ];
 
 

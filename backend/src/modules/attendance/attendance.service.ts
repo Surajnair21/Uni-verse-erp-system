@@ -11,6 +11,7 @@ type MarkSessionInput = {
   date: string;
   sectionId: string;
   subjectId: string;
+  timetableSlotId: string;
   records: AttendanceRecordInput[];
 };
 
@@ -27,7 +28,7 @@ export const AttendanceService = {
   |--------------------------------------------------------------------------
   */
   async markSession(user: any, data: MarkSessionInput) {
-    const { date, sectionId, subjectId, records } = data;
+    const { date, sectionId, subjectId, timetableSlotId, records } = data;
     const normalizedDate = normalizeDate(date);
 
     // ✅ Only FACULTY or ADMIN allowed
@@ -45,7 +46,16 @@ export const AttendanceService = {
         },
       });
 
-      if (!allocation) {
+      const slotAllocation = await prisma.timetableSlot.findFirst({
+        where: {
+          id: timetableSlotId,
+          facultyId: user.id,
+          sectionId,
+          subjectId,
+        },
+      });
+
+      if (!allocation && !slotAllocation) {
         throw new Error("You are not allocated to this section & subject.");
       }
     }
@@ -70,10 +80,9 @@ export const AttendanceService = {
     // ✅ Upsert session (unique composite constraint)
     const session = await prisma.attendanceSession.upsert({
       where: {
-        date_sectionId_subjectId: {
+        date_timetableSlotId: {
           date: normalizedDate,
-          sectionId,
-          subjectId,
+          timetableSlotId,
         },
       },
       update: {},
@@ -82,6 +91,7 @@ export const AttendanceService = {
         sectionId,
         subjectId,
         facultyId: user.id,
+        timetableSlotId,
       },
     });
 
@@ -130,7 +140,14 @@ export const AttendanceService = {
         },
       });
 
-      if (!allocation) {
+      const slotAllocation = await prisma.timetableSlot.findFirst({
+        where: {
+          facultyId: user.id,
+          sectionId,
+        },
+      });
+
+      if (!allocation && !slotAllocation) {
         throw new Error("Not authorized for this section.");
       }
 
@@ -202,6 +219,51 @@ export const AttendanceService = {
           ? "0.00"
           : ((data.present / data.total) * 100).toFixed(2),
     }));
+  },
+
+  /*
+  |--------------------------------------------------------------------------
+  | Faculty: Get Scheduled Classes For Date
+  |--------------------------------------------------------------------------
+  */
+  async getScheduledClasses(user: any, dateStr: string) {
+    if (user.role !== "FACULTY") {
+      throw new Error("Only intended for faculty");
+    }
+
+    const normalizedDate = normalizeDate(dateStr);
+    const dayOfWeekStr = ["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"][normalizedDate.getDay()];
+
+    // Get slots
+    const slots = await prisma.timetableSlot.findMany({
+      where: {
+        facultyId: user.id,
+        dayOfWeek: dayOfWeekStr as any,
+      },
+      include: {
+        section: { select: { id: true, name: true, batchYear: true, department: { select: { code: true } } } },
+        subject: { select: { id: true, name: true, code: true } }
+      },
+      orderBy: { startTime: 'asc' }
+    });
+
+    // Find matching created sessions
+    const sessionPromises = slots.map(async slot => {
+      const session = await prisma.attendanceSession.findUnique({
+        where: {
+          date_timetableSlotId: {
+            date: normalizedDate,
+            timetableSlotId: slot.id
+          }
+        }
+      });
+      return {
+        ...slot,
+        attendanceStatus: session ? "MARKED" : "PENDING"
+      };
+    });
+
+    return Promise.all(sessionPromises);
   },
 
   /*

@@ -7,6 +7,7 @@ import {
   BookOpen,
   Layers3,
   ClipboardList,
+  CalendarDays,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -37,7 +38,8 @@ function roleMeta(role: Role) {
       nav: [
         { href: "/faculty", label: "Overview", icon: LayoutGrid },
         { href: "/faculty/allocations", label: "My Classes", icon: ClipboardList },
-         { href: "/faculty/attendance", label: "Attendance", icon: ClipboardList },
+        { href: "/faculty/attendance", label: "Attendance", icon: ClipboardList },
+        { href: "/faculty/timetable", label: "Timetable", icon: CalendarDays },
       ],
     };
 
@@ -47,7 +49,8 @@ function roleMeta(role: Role) {
     nav: [
       { href: "/student", label: "Overview", icon: LayoutGrid },
       { href: "/student/classes", label: "My Classes (phase)", icon: BookOpen, disabled: true },
-       { href: "/student/attendance", label: "My Attendance", icon: ClipboardList },
+      { href: "/student/attendance", label: "My Attendance", icon: ClipboardList },
+      { href: "/student/timetable", label: "Timetable", icon: CalendarDays },
     ],
   };
 }

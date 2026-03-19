@@ -14,6 +14,16 @@ enum Role {
   STUDENT
 }
 
+enum DayOfWeek {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+}
+
 model User {
   id           String @id @default(cuid())
   name         String
@@ -32,6 +42,7 @@ model User {
   facultyAllocations FacultySubjectAllocation[] @relation("facultyAllocations")
   attendanceSessions AttendanceSession[]
   attendanceRecords  AttendanceRecord[]
+  timetableSlots     TimetableSlot[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -114,6 +125,7 @@ model Section {
   allocations        FacultySubjectAllocation[]
   studentProfiles    StudentProfile[]
   attendanceSessions AttendanceSession[]
+  timetableSlots     TimetableSlot[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -134,6 +146,7 @@ model Subject {
 
   allocations        FacultySubjectAllocation[]
   attendanceSessions AttendanceSession[]
+  timetableSlots     TimetableSlot[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -192,12 +205,42 @@ model FacultySubjectAllocation {
   @@index([sectionId])
 }
 
+model TimetableSlot {
+  id        String   @id @default(cuid())
+  dayOfWeek DayOfWeek
+  startTime String   // e.g., "09:00"
+  endTime   String   // e.g., "10:00"
+  room      String?
+
+  sectionId String
+  section   Section @relation(fields: [sectionId], references: [id])
+
+  subjectId String
+  subject   Subject @relation(fields: [subjectId], references: [id])
+
+  facultyId String
+  faculty   User    @relation(fields: [facultyId], references: [id])
+
+  attendanceSessions AttendanceSession[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([sectionId])
+  @@index([facultyId])
+  @@index([dayOfWeek])
+}
+
 model AttendanceSession {
   id        String   @id @default(cuid())
   date      DateTime // store date at 00:00 (normalized)
   sectionId String
   subjectId String
   facultyId String
+
+  timetableSlotId String?
+  timetableSlot TimetableSlot? @relation(fields: [timetableSlotId], references: [id])
+
   createdAt DateTime @default(now())
 
   section Section @relation(fields: [sectionId], references: [id])
@@ -206,7 +249,7 @@ model AttendanceSession {
 
   records AttendanceRecord[]
 
-  @@unique([date, sectionId, subjectId]) // prevents duplicate session same day
+  @@unique([date, timetableSlotId]) // prevents duplicate session same day for same slot
   @@index([sectionId, subjectId])
   @@index([facultyId, date])
 }

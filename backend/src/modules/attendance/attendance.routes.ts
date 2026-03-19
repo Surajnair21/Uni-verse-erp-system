@@ -7,6 +7,25 @@ import { createSessionSchema } from "./attendance.schemas";
 const router = Router();
 
 /**
+ * Faculty: Get scheduled classes for a specific date
+ */
+router.get(
+  "/my-scheduled-classes",
+  requireAuth,
+  async (req: any, res) => {
+    try {
+      const date = req.query.date as string;
+      if (!date) return res.status(400).json({ error: "date query parameter is required (YYYY-MM-DD)" });
+
+      const classes = await AttendanceService.getScheduledClasses(req.user, date);
+      res.json(classes);
+    } catch (err: any) {
+      res.status(400).json({ error: err.message });
+    }
+  }
+);
+
+/**
  * Faculty: Mark attendance
  */
 router.post(
