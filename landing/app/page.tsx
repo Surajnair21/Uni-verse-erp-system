@@ -660,7 +660,7 @@ function Footer() {
           {['Privacy', 'Terms', 'Docs'].map(l => <a key={l} href="#" style={{ fontSize: 13, color: 'rgba(255,255,255,0.28)', textDecoration: 'none' }}>{l}</a>)}
           <a href={LOGIN_URL} style={{ fontSize: 13, color: 'rgba(255,255,255,0.28)', textDecoration: 'none' }}>Sign In</a>
         </div>
-        <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.18)', margin: 0 }}>© 2025 UniVerse. Built for modern institutions.</p>
+        <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.18)', margin: 0 }}>© 2026 UniVerse. Built for modern institutions.</p>
       </div>
     </footer>
   )
