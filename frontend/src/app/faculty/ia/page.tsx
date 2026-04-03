@@ -37,9 +37,21 @@ export default function FacultyIAPage() {
   const [saving, setSaving]             = useState(false);
   const [toast, setToast]               = useState<{ ok: boolean; msg: string } | null>(null);
 
-  // 1) Load sections
+  // 1) Derive sections the faculty is allocated to (from their own allocations)
   useEffect(() => {
-    apiFetch<any[]>("/api/master/sections").then(setSections).catch(() => {});
+    apiFetch<any[]>("/api/allocations")
+      .then(allocations => {
+        const seen = new Set<string>();
+        const uniqueSections: any[] = [];
+        for (const a of allocations) {
+          if (a.section && !seen.has(a.section.id)) {
+            seen.add(a.section.id);
+            uniqueSections.push(a.section);
+          }
+        }
+        setSections(uniqueSections);
+      })
+      .catch(() => {});
   }, []);
 
   // 2) Load subjects for the selected section — derived from faculty's own allocations

@@ -54,6 +54,7 @@ router.post(
 router.get(
   "/section/:sectionId/students",
   requireAuth,
+  can("read", "attendance"),
   async (req: any, res) => {
     try {
       const students = await AttendanceService.getSectionStudents(
@@ -74,6 +75,7 @@ router.get(
 router.get(
   "/me/summary",
   requireAuth,
+  can("read", "attendance"),
   async (req: any, res) => {
     try {
       const summary = await AttendanceService.getStudentSummary(

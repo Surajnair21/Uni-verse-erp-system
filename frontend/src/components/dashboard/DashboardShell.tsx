@@ -8,6 +8,7 @@ import {
   ClipboardList,
   CalendarDays,
   BarChart2,
+  UserCircle2,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -40,6 +41,7 @@ function roleMeta(role: Role) {
         { href: "/faculty/attendance", label: "Attendance", icon: ClipboardList },
         { href: "/faculty/timetable", label: "Timetable", icon: CalendarDays },
         { href: "/faculty/ia", label: "IA Marks", icon: BarChart2 },
+        { href: "/faculty/profile", label: "My Profile", icon: UserCircle2 },
       ],
     };
 
@@ -51,6 +53,7 @@ function roleMeta(role: Role) {
       { href: "/student/attendance", label: "My Attendance", icon: ClipboardList },
       { href: "/student/timetable", label: "Timetable", icon: CalendarDays },
       { href: "/student/ia", label: "IA Marks", icon: BarChart2 },
+      { href: "/student/profile", label: "My Profile", icon: UserCircle2 },
     ],
   };
 }
