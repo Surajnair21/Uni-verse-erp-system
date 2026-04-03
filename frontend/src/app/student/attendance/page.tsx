@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { apiFetch } from "@/lib/api";
 import Protected from "@/components/Protected";
 import DashboardShell from "@/components/dashboard/DashboardShell";
-import { ClipboardX, Activity, CheckCircle2, Clock } from "lucide-react";
+import { ClipboardX, Activity, CheckCircle2, Clock, AlertTriangle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 type SummaryRow = {
@@ -44,6 +44,9 @@ export default function StudentAttendancePage() {
     ? rows.reduce((acc, row) => acc + Number(row.percentage || 0), 0) / rows.length 
     : 0;
 
+  // Subjects below the 75% threshold
+  const atRisk = rows.filter(r => Number(r.percentage || 0) < 75);
+
   return (
     <Protected allow={["STUDENT"]}>
       <DashboardShell
@@ -64,6 +67,30 @@ export default function StudentAttendancePage() {
             </motion.div>
           )}
 
+          {/* ⚠️ Shortage Alert Banner */}
+          {!loading && atRisk.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
+              className="bg-red-50 border border-red-200 rounded-2xl px-5 py-4 shadow-sm"
+            >
+              <div className="flex items-center gap-2 text-red-800 font-bold mb-3">
+                <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0" />
+                Attendance Shortage Warning — {atRisk.length} subject{atRisk.length > 1 ? "s" : ""} below 75%
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {atRisk.map(r => (
+                  <span key={r.subject}
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full bg-red-100 text-red-700 border border-red-200">
+                    {r.subject} — {Number(r.percentage).toFixed(1)}%
+                  </span>
+                ))}
+              </div>
+              <p className="text-xs text-red-600 mt-3">
+                You need to attend more classes to avoid being debarred from exams. Minimum required: <strong>75%</strong>.
+              </p>
+            </motion.div>
+          )}
+
           {!loading && rows.length > 0 && (
             <div className="bg-white border text-sm border-slate-200 p-4 rounded-2xl shadow-sm flex items-center justify-between">
                <div className="flex items-center gap-3 text-slate-700">
@@ -79,6 +106,7 @@ export default function StudentAttendancePage() {
                </span>
             </div>
           )}
+
 
           <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm min-h-[400px]">
             <AnimatePresence mode="wait">

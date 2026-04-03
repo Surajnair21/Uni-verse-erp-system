@@ -11,6 +11,7 @@ import { allocationsRouter } from "./modules/allocations/allocations.routes";
 import { studentsRouter } from "./modules/students/students.routes";
 import attendanceRoutes from "./modules/attendance/attendance.routes";
 import { timetableRouter } from './modules/timetable/timetable.routes';
+import { iaRouter } from './modules/ia/ia.routes';
 
 const app = express()
 
@@ -30,6 +31,7 @@ app.use('/api/allocations', allocationsRouter)
 app.use('/api/students', studentsRouter)
 app.use('/api/attendance', attendanceRoutes)
 app.use('/api/timetable', timetableRouter)
+app.use('/api/ia', iaRouter)
 app.use(notFound)
 app.use(errorHandler)
 

@@ -43,6 +43,8 @@ model User {
   attendanceSessions AttendanceSession[]
   attendanceRecords  AttendanceRecord[]
   timetableSlots     TimetableSlot[]
+  facultyIAComponents IAComponent[]             @relation("facultyIAComponents")
+  studentIAMarks      IAMark[]                  @relation("studentIAMarks")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -126,6 +128,7 @@ model Section {
   studentProfiles    StudentProfile[]
   attendanceSessions AttendanceSession[]
   timetableSlots     TimetableSlot[]
+  iaComponents       IAComponent[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -147,6 +150,7 @@ model Subject {
   allocations        FacultySubjectAllocation[]
   attendanceSessions AttendanceSession[]
   timetableSlots     TimetableSlot[]
+  iaComponents       IAComponent[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -274,3 +278,60 @@ enum AttendanceStatus {
   LATE
   EXCUSED
 }
+
+// ─────────────────────────────────────────────
+//  Internal Assessment (IA) Models
+// ─────────────────────────────────────────────
+
+enum IAComponentType {
+  QUIZ
+  ASSIGNMENT
+  MIDTERM
+  PROJECT
+  PRACTICAL
+}
+
+model IAComponent {
+  id          String          @id @default(cuid())
+  name        String          // e.g. "Quiz 1", "Mid-Term"
+  type        IAComponentType
+  maxMarks    Float           // e.g. 20.0
+  weightage   Float?          // optional percentage weight, e.g. 10.0
+
+  subjectId   String
+  subject     Subject         @relation(fields: [subjectId], references: [id])
+
+  sectionId   String
+  section     Section         @relation(fields: [sectionId], references: [id])
+
+  facultyId   String
+  faculty     User            @relation("facultyIAComponents", fields: [facultyId], references: [id])
+
+  marks       IAMark[]
+
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@unique([subjectId, sectionId, name])
+  @@index([sectionId])
+  @@index([facultyId])
+}
+
+model IAMark {
+  id          String       @id @default(cuid())
+
+  componentId String
+  component   IAComponent  @relation(fields: [componentId], references: [id], onDelete: Cascade)
+
+  studentId   String
+  student     User         @relation("studentIAMarks", fields: [studentId], references: [id])
+
+  marksObtained Float      // e.g. 17.5
+
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@unique([componentId, studentId])
+  @@index([studentId])
+}
+

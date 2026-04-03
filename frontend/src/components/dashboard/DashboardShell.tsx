@@ -4,10 +4,10 @@ import { motion } from "framer-motion";
 import {
   LayoutGrid,
   LogOut,
-  BookOpen,
   Layers3,
   ClipboardList,
   CalendarDays,
+  BarChart2,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -37,9 +37,9 @@ function roleMeta(role: Role) {
       subtitle: "Your teaching allocations • upcoming attendance/marks",
       nav: [
         { href: "/faculty", label: "Overview", icon: LayoutGrid },
-        { href: "/faculty/allocations", label: "My Classes", icon: ClipboardList },
         { href: "/faculty/attendance", label: "Attendance", icon: ClipboardList },
         { href: "/faculty/timetable", label: "Timetable", icon: CalendarDays },
+        { href: "/faculty/ia", label: "IA Marks", icon: BarChart2 },
       ],
     };
 
@@ -48,9 +48,9 @@ function roleMeta(role: Role) {
     subtitle: "Your academics • attendance & results (phased)",
     nav: [
       { href: "/student", label: "Overview", icon: LayoutGrid },
-      { href: "/student/classes", label: "My Classes (phase)", icon: BookOpen, disabled: true },
       { href: "/student/attendance", label: "My Attendance", icon: ClipboardList },
       { href: "/student/timetable", label: "Timetable", icon: CalendarDays },
+      { href: "/student/ia", label: "IA Marks", icon: BarChart2 },
     ],
   };
 }

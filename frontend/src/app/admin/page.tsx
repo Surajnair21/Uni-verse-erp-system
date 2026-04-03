@@ -6,54 +6,93 @@ import StatsGrid from "@/components/admin/StatsGrid";
 import SetupChecklist from "@/components/admin/SetupChecklist";
 import { apiFetch } from "@/lib/api";
 import { useEffect, useState } from "react";
+import { AlertTriangle, RefreshCw } from "lucide-react";
+
+type Stats = {
+  departments: number;
+  programs: number;
+  courses: number;
+  subjects: number;
+  semesters: number;
+  sections: number;
+  users: number;
+  timetableSlots: number;
+};
+
+const DEFAULT_STATS: Stats = {
+  departments: 0,
+  programs: 0,
+  courses: 0,
+  subjects: 0,
+  semesters: 0,
+  sections: 0,
+  users: 0,
+  timetableSlots: 0,
+};
 
 export default function AdminHome() {
-  const [stats, setStats] = useState({
-    departments: 0,
-    programs: 0,
-    courses: 0,
-    subjects: 0,
-    semesters: 0,
-    sections: 0,
-  });
+  const [stats, setStats] = useState<Stats>(DEFAULT_STATS);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   async function load() {
-    const [d, p, c, s, sem, sec] = await Promise.all([
-      apiFetch<any[]>("/api/master/departments"),
-      apiFetch<any[]>("/api/master/programs"),
-      apiFetch<any[]>("/api/master/courses"),
-      apiFetch<any[]>("/api/master/subjects"),
-      apiFetch<any[]>("/api/master/semesters"),
-      apiFetch<any[]>("/api/master/sections"),
-    ]);
+    setLoading(true);
+    setError(null);
+    try {
+      const [d, p, c, s, sem, sec, users, tslots] = await Promise.all([
+        apiFetch<any[]>("/api/master/departments").catch(() => []),
+        apiFetch<any[]>("/api/master/programs").catch(() => []),
+        apiFetch<any[]>("/api/master/courses").catch(() => []),
+        apiFetch<any[]>("/api/master/subjects").catch(() => []),
+        apiFetch<any[]>("/api/master/semesters").catch(() => []),
+        apiFetch<any[]>("/api/master/sections").catch(() => []),
+        apiFetch<any[]>("/api/users").catch(() => []),
+        apiFetch<any[]>("/api/timetable").catch(() => []),
+      ]);
 
-    setStats({
-      departments: d.length,
-      programs: p.length,
-      courses: c.length,
-      subjects: s.length,
-      semesters: sem.length,
-      sections: sec.length,
-    });
+      setStats({
+        departments: Array.isArray(d) ? d.length : 0,
+        programs: Array.isArray(p) ? p.length : 0,
+        courses: Array.isArray(c) ? c.length : 0,
+        subjects: Array.isArray(s) ? s.length : 0,
+        semesters: Array.isArray(sem) ? sem.length : 0,
+        sections: Array.isArray(sec) ? sec.length : 0,
+        users: Array.isArray(users) ? users.length : 0,
+        timetableSlots: Array.isArray(tslots) ? tslots.length : 0,
+      });
+    } catch (e: any) {
+      setError(e.message || "Failed to load dashboard stats.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   useEffect(() => {
-    load().catch(() => {});
+    load();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
     <Protected allow={["ADMIN"]}>
       <AdminShell title="Admin Dashboard" subtitle="Setup master data, users, and allocations.">
         <div className="space-y-5">
-          <StatsGrid
-            stats={{
-              departments: stats.departments,
-              programs: stats.programs,
-              courses: stats.courses,
-              subjects: stats.subjects,
-              sections: stats.sections,
-            }}
-          />
+          {error && (
+            <div className="flex items-center justify-between gap-3 rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-red-800">
+              <div className="flex items-center gap-2 text-sm font-medium">
+                <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+                {error}
+              </div>
+              <button
+                onClick={load}
+                className="flex items-center gap-1.5 text-xs font-semibold text-red-700 hover:text-red-900 transition"
+              >
+                <RefreshCw className="w-3.5 h-3.5" />
+                Retry
+              </button>
+            </div>
+          )}
+
+          <StatsGrid stats={stats} loading={loading} />
           <SetupChecklist stats={stats} />
         </div>
       </AdminShell>

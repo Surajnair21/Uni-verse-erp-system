@@ -17,7 +17,7 @@ type MarkSessionInput = {
 
 function normalizeDate(dateStr: string) {
   const date = new Date(dateStr);
-  date.setHours(0, 0, 0, 0);
+  date.setUTCHours(0, 0, 0, 0); // always normalize to UTC midnight
   return date;
 }
 

@@ -14,6 +14,7 @@ type Resource =
   | 'allocations'
   | 'attendance'
   | 'timetable'
+  | 'ia'
 
 /**
  * Very simple RBAC matrix.
@@ -34,6 +35,7 @@ const PERMISSIONS: Record<Role, Partial<Record<Resource, Action[]>>> = {
     allocations: ['manage'],
     attendance: ['manage'],
     timetable: ['manage'],
+    ia: ['manage'],
   },
 
   HOD: {
@@ -47,6 +49,7 @@ const PERMISSIONS: Record<Role, Partial<Record<Resource, Action[]>>> = {
     attendance: ['read'],
     allocations: ["read"],
     timetable: ['read'],
+    ia: ['read'],
   },
 
   FACULTY: {
@@ -60,6 +63,7 @@ const PERMISSIONS: Record<Role, Partial<Record<Resource, Action[]>>> = {
     attendance: ['create', 'read'],
     allocations: ['read'],
     timetable: ['read'],
+    ia: ['create', 'read', 'update', 'delete'],
   },
 
   STUDENT: {
@@ -73,6 +77,7 @@ const PERMISSIONS: Record<Role, Partial<Record<Resource, Action[]>>> = {
     attendance: ['read'],
     allocations: ["read"],
     timetable: ['read'],
+    ia: ['read'],
   },
 }
 

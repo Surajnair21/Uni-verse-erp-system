@@ -50,5 +50,10 @@ export async function apiFetch<T>(
     throw new Error(msg);
   }
 
+  // 204 No Content / 205 Reset Content have no body — don't call .json()
+  if (res.status === 204 || res.status === 205) {
+    return null as unknown as T;
+  }
+
   return res.json();
 }

@@ -1,6 +1,5 @@
 import app from "./app";
 import { ensureAdmin } from "./modules/auth/auth.service";
-import { ensureSeed } from "./seed/ensureSeed";
 import "dotenv/config";
 
 const env = {
@@ -8,8 +7,7 @@ const env = {
 };
 
 (async () => {
-  await ensureAdmin();  // existing admin seeding
-  await ensureSeed();   // ✅ new full seeding (only if DB empty)
+  await ensureAdmin(); // ensures the default admin user exists
 
   app.listen(Number(env.PORT), () => {
     console.log(`🚀 Backend running on port ${env.PORT}`);
