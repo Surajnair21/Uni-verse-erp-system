@@ -3,9 +3,72 @@ import { prisma } from "../../prisma/client";
 import { requireAuth } from "../../middlewares/auth";
 import { can } from "../../middlewares/can";
 import { z } from "zod";
+import multer from "multer";
+import { parse } from "csv-parse";
+import bcrypt from "bcryptjs";
 
 export const studentsRouter = Router();
 studentsRouter.use(requireAuth);
+
+const upload = multer({ storage: multer.memoryStorage() });
+
+/*
+|--------------------------------------------------------------------------
+| Admin: Import students via CSV
+|--------------------------------------------------------------------------
+*/
+studentsRouter.post(
+  "/import",
+  can("create", "users"),
+  upload.single("file"),
+  async (req: any, res) => {
+    if (!req.file) return res.status(400).json({ message: "No CSV file provided" });
+
+    try {
+      const records: any[] = [];
+      const parser = parse(req.file.buffer, {
+        columns: true,
+        skip_empty_lines: true,
+        trim: true
+      });
+
+      for await (const record of parser) {
+        records.push(record);
+      }
+
+      let imported = 0;
+      for (const row of records) {
+        if (!row.name || !row.email) continue;
+        
+        // Hash realistic password or use default
+        const passwordHash = await bcrypt.hash(row.password || 'password123', 10);
+        
+        await prisma.user.upsert({
+          where: { email: row.email },
+          update: {},
+          create: {
+            name: row.name,
+            email: row.email,
+            passwordHash,
+            role: "STUDENT",
+            studentProfile: row.rollNo || row.sectionId ? {
+              create: {
+                rollNo: row.rollNo || undefined,
+                sectionId: row.sectionId || undefined,
+                batchYear: row.batchYear ? parseInt(row.batchYear) : undefined
+              }
+            } : undefined
+          }
+        });
+        imported++;
+      }
+
+      res.json({ message: `Successfully imported ${imported} students.` });
+    } catch (e: any) {
+      res.status(400).json({ message: "Failed to parse or import CSV.", error: e.message });
+    }
+  }
+);
 
 /*
 |--------------------------------------------------------------------------

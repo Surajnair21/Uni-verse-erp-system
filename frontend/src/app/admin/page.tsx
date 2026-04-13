@@ -3,10 +3,12 @@
 import Protected from "@/components/Protected";
 import AdminShell from "@/components/admin/AdminShell";
 import StatsGrid from "@/components/admin/StatsGrid";
+import { NoticeBoard } from "@/components/dashboard/NoticeBoard";
+import { PublishNoticeModal } from "@/components/admin/PublishNoticeModal";
 import SetupChecklist from "@/components/admin/SetupChecklist";
 import { apiFetch } from "@/lib/api";
 import { useEffect, useState } from "react";
-import { AlertTriangle, RefreshCw } from "lucide-react";
+import { AlertTriangle, RefreshCw, PenLine } from "lucide-react";
 
 type Stats = {
   departments: number;
@@ -34,6 +36,7 @@ export default function AdminHome() {
   const [stats, setStats] = useState<Stats>(DEFAULT_STATS);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showNoticeModal, setShowNoticeModal] = useState(false);
 
   async function load() {
     setLoading(true);
@@ -91,9 +94,33 @@ export default function AdminHome() {
               </button>
             </div>
           )}
+          
+          <div className="relative">
+            <NoticeBoard />
+            <div className="absolute top-4 right-5 mt-1">
+              <button 
+                onClick={() => setShowNoticeModal(true)}
+                className="flex items-center gap-1.5 text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-full transition"
+              >
+                <PenLine className="w-3.5 h-3.5" /> Publish 
+              </button>
+            </div>
+          </div>
 
           <StatsGrid stats={stats} loading={loading} />
           <SetupChecklist stats={stats} />
+          
+          {showNoticeModal && (
+            <PublishNoticeModal 
+              onClose={() => setShowNoticeModal(false)} 
+              onSuccess={() => {
+                alert("Notice published successfully!");
+                // NoticeBoard automatically refreshes on mount, but we could reload if we hoisted state.
+                // Simple hard reload for demonstration purposes or the user can just refresh to see it.
+                window.location.reload();
+              }} 
+            />
+          )}
         </div>
       </AdminShell>
     </Protected>

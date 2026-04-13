@@ -89,4 +89,21 @@ router.get(
   }
 );
 
+/**
+ * Faculty/HOD/Admin: Get flagged students
+ */
+router.get(
+  "/flagged",
+  requireAuth,
+  can("read", "attendance"),
+  async (req: any, res) => {
+    try {
+      const flagged = await AttendanceService.getFlaggedStudents(req.user);
+      res.json(flagged);
+    } catch (err: any) {
+      res.status(403).json({ error: err.message });
+    }
+  }
+);
+
 export default router;

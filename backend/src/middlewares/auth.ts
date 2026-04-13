@@ -17,8 +17,14 @@ declare global {
 }
 
 export function requireAuth(req: Request, res: Response, next: NextFunction) {
-  const header = req.headers.authorization
-  const token = header?.startsWith('Bearer ') ? header.slice(7) : null
+  let token = null;
+  const header = req.headers.authorization;
+  if (header?.startsWith('Bearer ')) {
+    token = header.slice(7);
+  } else if (req.query.token) {
+    token = req.query.token as string;
+  }
+  
   if (!token) return res.status(401).json({ message: 'Missing Bearer token' })
 
   try {

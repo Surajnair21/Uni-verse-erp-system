@@ -2,6 +2,7 @@
 
 import Protected from "@/components/Protected";
 import DashboardShell from "@/components/dashboard/DashboardShell";
+import { NoticeBoard } from "@/components/dashboard/NoticeBoard";
 import { apiFetch } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
 import { useEffect, useState } from "react";
@@ -74,6 +75,8 @@ export default function FacultyHome() {
               {pendingToday > 0 && <span className="ml-1">· <span className="font-semibold text-amber-200">{pendingToday} pending</span></span>}
             </div>
           </motion.div>
+
+          <NoticeBoard />
 
           {/* Stats row */}
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">

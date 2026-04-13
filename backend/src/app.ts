@@ -13,7 +13,8 @@ import attendanceRoutes from "./modules/attendance/attendance.routes";
 import { timetableRouter } from './modules/timetable/timetable.routes';
 import { iaRouter } from './modules/ia/ia.routes';
 import { profileRouter } from './modules/profile/profile.routes';
-
+import { resultsRouter } from './modules/results/results.routes';
+import { noticesRouter } from './modules/notices/notices.routes';
 const app = express()
 
 app.use(helmet())
@@ -34,6 +35,8 @@ app.use('/api/attendance', attendanceRoutes)
 app.use('/api/timetable', timetableRouter)
 app.use('/api/ia', iaRouter)
 app.use('/api/profile', profileRouter)
+app.use('/api/results', resultsRouter)
+app.use('/api/notices', noticesRouter)
 app.use(notFound)
 app.use(errorHandler)
 

@@ -2,6 +2,7 @@
 
 import Protected from "@/components/Protected";
 import DashboardShell from "@/components/dashboard/DashboardShell";
+import { NoticeBoard } from "@/components/dashboard/NoticeBoard";
 import { apiFetch } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
 import { useEffect, useState } from "react";
@@ -100,6 +101,8 @@ export default function StudentHome() {
               </div>
             )}
           </motion.div>
+
+          <NoticeBoard />
 
           {/* Shortage Alert */}
           {!loading && lowAttendance.length > 0 && (

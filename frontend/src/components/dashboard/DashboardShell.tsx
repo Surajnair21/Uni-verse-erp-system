@@ -9,6 +9,9 @@ import {
   CalendarDays,
   BarChart2,
   UserCircle2,
+  Award,
+  FileText,
+  UserX,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -28,6 +31,9 @@ function roleMeta(role: Role) {
       nav: [
         { href: "/hod", label: "Overview", icon: LayoutGrid },
         { href: "/hod/allocations", label: "Allocations", icon: ClipboardList },
+        { href: "/hod/timetable", label: "Dept Timetable", icon: CalendarDays },
+        { href: "/hod/flagged", label: "Flagged Students", icon: UserX },
+        { href: "/hod/reports", label: "Result Reports", icon: FileText },
         { href: "/hod/master", label: "Master Data (view)", icon: Layers3 },
       ],
     };
@@ -41,6 +47,7 @@ function roleMeta(role: Role) {
         { href: "/faculty/attendance", label: "Attendance", icon: ClipboardList },
         { href: "/faculty/timetable", label: "Timetable", icon: CalendarDays },
         { href: "/faculty/ia", label: "IA Marks", icon: BarChart2 },
+        { href: "/faculty/reports", label: "Result Reports", icon: FileText },
         { href: "/faculty/profile", label: "My Profile", icon: UserCircle2 },
       ],
     };
@@ -53,6 +60,7 @@ function roleMeta(role: Role) {
       { href: "/student/attendance", label: "My Attendance", icon: ClipboardList },
       { href: "/student/timetable", label: "Timetable", icon: CalendarDays },
       { href: "/student/ia", label: "IA Marks", icon: BarChart2 },
+      { href: "/student/results", label: "My Results", icon: Award },
       { href: "/student/profile", label: "My Profile", icon: UserCircle2 },
     ],
   };

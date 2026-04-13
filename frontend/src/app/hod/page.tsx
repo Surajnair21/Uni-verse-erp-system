@@ -4,9 +4,12 @@ import Protected from "@/components/Protected";
 import DashboardShell from "@/components/dashboard/DashboardShell";
 import StatsGrid from "@/components/admin/StatsGrid";
 import SetupChecklist from "@/components/admin/SetupChecklist";
+import { NoticeBoard } from "@/components/dashboard/NoticeBoard";
+import { PublishNoticeModal } from "@/components/admin/PublishNoticeModal";
 import { apiFetch } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
 import { useEffect, useMemo, useState } from "react";
+import { PenLine } from "lucide-react";
 
 export default function HodHome() {
   const { user } = useAuth();
@@ -20,6 +23,7 @@ export default function HodHome() {
   });
 
   const [allocCount, setAllocCount] = useState(0);
+  const [showNoticeModal, setShowNoticeModal] = useState(false);
 
   async function load() {
     const [d, p, c, s, sem, sec, al] = await Promise.all([
@@ -67,6 +71,18 @@ export default function HodHome() {
         pageSubtitle={`Overview • ${deptLabel} • Allocations in your dept: ${allocCount}`}
       >
         <div className="space-y-5">
+          <div className="relative">
+            <NoticeBoard />
+            <div className="absolute top-4 right-5 mt-1">
+              <button 
+                onClick={() => setShowNoticeModal(true)}
+                className="flex items-center gap-1.5 text-xs font-bold text-sky-600 bg-sky-50 hover:bg-sky-100 px-3 py-1.5 rounded-full transition"
+              >
+                <PenLine className="w-3.5 h-3.5" /> Publish 
+              </button>
+            </div>
+          </div>
+
           <StatsGrid
             stats={{
               departments: stats.departments,
@@ -77,6 +93,15 @@ export default function HodHome() {
             }}
           />
           <SetupChecklist stats={stats} />
+          
+          {showNoticeModal && (
+            <PublishNoticeModal 
+              onClose={() => setShowNoticeModal(false)} 
+              onSuccess={() => {
+                window.location.reload();
+              }} 
+            />
+          )}
         </div>
       </DashboardShell>
     </Protected>

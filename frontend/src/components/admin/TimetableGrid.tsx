@@ -15,7 +15,7 @@ function formatHour(hour: number) {
     return `${h}:00 ${ampm}`;
 }
 
-export default function TimetableGrid({ sectionId }: { sectionId: string }) {
+export default function TimetableGrid({ sectionId, readOnly = false }: { sectionId: string, readOnly?: boolean }) {
     const [slots, setSlots] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -109,21 +109,25 @@ export default function TimetableGrid({ sectionId }: { sectionId: string }) {
                                                         </div>
                                                     </div>
 
-                                                    <button
-                                                        onClick={() => handleDelete(slot.id)}
-                                                        className="absolute bottom-2 right-2 p-1.5 bg-red-100 text-red-600 rounded-md opacity-0 group-hover/card:opacity-100 transition-opacity hover:bg-red-200"
-                                                        title="Delete Slot"
-                                                    >
-                                                        <Trash2 className="w-3.5 h-3.5" />
-                                                    </button>
+                                                    {!readOnly && (
+                                                        <button
+                                                            onClick={() => handleDelete(slot.id)}
+                                                            className="absolute bottom-2 right-2 p-1.5 bg-red-100 text-red-600 rounded-md opacity-0 group-hover/card:opacity-100 transition-opacity hover:bg-red-200"
+                                                            title="Delete Slot"
+                                                        >
+                                                            <Trash2 className="w-3.5 h-3.5" />
+                                                        </button>
+                                                    )}
                                                 </motion.div>
                                             ) : (
-                                                <div
-                                                    onClick={() => openModal(day, hour)}
-                                                    className="h-full w-full rounded-lg border-2 border-dashed border-transparent hover:border-sky-300 hover:bg-sky-50 flex items-center justify-center cursor-pointer transition-colors opacity-0 group-hover:opacity-100"
-                                                >
-                                                    <Plus className="w-5 h-5 text-sky-500" />
-                                                </div>
+                                                !readOnly && (
+                                                    <div
+                                                        onClick={() => openModal(day, hour)}
+                                                        className="h-full w-full rounded-lg border-2 border-dashed border-transparent hover:border-sky-300 hover:bg-sky-50 flex items-center justify-center cursor-pointer transition-colors opacity-0 group-hover:opacity-100"
+                                                    >
+                                                        <Plus className="w-5 h-5 text-sky-500" />
+                                                    </div>
+                                                )
                                             )}
                                         </AnimatePresence>
                                     </div>
@@ -134,14 +138,16 @@ export default function TimetableGrid({ sectionId }: { sectionId: string }) {
                 </div>
             )}
 
-            <AssignSlotModal
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                sectionId={sectionId}
-                day={selectedDay}
-                hour={selectedHour}
-                onSuccess={loadSlots}
-            />
+            {!readOnly && (
+                <AssignSlotModal
+                    isOpen={isModalOpen}
+                    onClose={() => setIsModalOpen(false)}
+                    sectionId={sectionId}
+                    day={selectedDay}
+                    hour={selectedHour}
+                    onSuccess={loadSlots}
+                />
+            )}
         </div>
     );
 }

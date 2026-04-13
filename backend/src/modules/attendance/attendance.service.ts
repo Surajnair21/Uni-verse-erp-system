@@ -210,15 +210,76 @@ export const AttendanceService = {
       }
     });
 
-    return Object.entries(summary).map(([subject, data]) => ({
-      subject,
-      totalSessions: data.total,
-      presentCount: data.present,
-      percentage:
-        data.total === 0
-          ? "0.00"
-          : ((data.present / data.total) * 100).toFixed(2),
-    }));
+    return Object.entries(summary).map(([subject, data]) => {
+      const percentage = data.total === 0 ? 0 : (data.present / data.total) * 100;
+      return {
+        subject,
+        totalSessions: data.total,
+        presentCount: data.present,
+        percentage: percentage.toFixed(2),
+        flagged: percentage < 75
+      };
+    });
+  },
+
+  /*
+  |--------------------------------------------------------------------------
+  | Get Flagged Students (Attendance < 75%)
+  |--------------------------------------------------------------------------
+  */
+  async getFlaggedStudents(user: any) {
+    if (!["ADMIN", "HOD", "FACULTY"].includes(user.role)) {
+       throw new Error("Access denied.");
+    }
+    
+    let whereClause: any = { role: "STUDENT" };
+
+    if (user.role === "HOD") {
+      if (!user.departmentId) return [];
+      whereClause = {
+        role: "STUDENT",
+        studentProfile: {
+          section: { departmentId: user.departmentId }
+        }
+      };
+    } else if (user.role === "FACULTY") {
+      // For faculty, you could restrict to their sections. Keeping it simple for now, 
+      // or similar logic where section.allocations has facultyId.
+    }
+
+    const allStudents = await prisma.user.findMany({
+      where: whereClause,
+      include: {
+        studentProfile: { include: { section: true } },
+        attendanceRecords: {
+          include: { session: true }
+        }
+      }
+    });
+
+    const flagged = [];
+
+    for (const student of allStudents) {
+      if (!student.attendanceRecords || student.attendanceRecords.length === 0) continue;
+      
+      const total = student.attendanceRecords.length;
+      const present = student.attendanceRecords.filter(r => 
+        r.status === "PRESENT" || r.status === "LATE" || r.status === "EXCUSED"
+      ).length;
+      
+      const percentage = (present / total) * 100;
+      if (percentage < 75) {
+        flagged.push({
+           id: student.id,
+           name: student.name,
+           rollNo: student.studentProfile?.rollNo,
+           section: student.studentProfile?.section?.name,
+           percentage: percentage.toFixed(2)
+        });
+      }
+    }
+
+    return flagged;
   },
 
   /*
