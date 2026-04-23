@@ -293,7 +293,7 @@ export const AttendanceService = {
     }
 
     const normalizedDate = normalizeDate(dateStr);
-    const dayOfWeekStr = ["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"][normalizedDate.getDay()];
+    const dayOfWeekStr = ["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"][normalizedDate.getUTCDay()];
 
     // Get slots
     const slots = await prisma.timetableSlot.findMany({

@@ -35,6 +35,7 @@ function roleMeta(role: Role) {
         { href: "/hod/flagged", label: "Flagged Students", icon: UserX },
         { href: "/hod/reports", label: "Result Reports", icon: FileText },
         { href: "/hod/master", label: "Master Data (view)", icon: Layers3 },
+        { href: "/hod/profile", label: "My Profile", icon: UserCircle2 },
       ],
     };
 

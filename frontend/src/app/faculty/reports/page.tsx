@@ -14,8 +14,17 @@ export default function FacultyReports() {
   useEffect(() => {
     async function fetchSections() {
       try {
-        const res = await apiFetch<any[]>("/api/master/sections");
-        setSections(res);
+        const allocations = await apiFetch<any[]>("/api/allocations");
+        // Derive unique sections from faculty's own allocations
+        const seen = new Set<string>();
+        const uniqueSections: any[] = [];
+        for (const a of allocations) {
+          if (a.section && !seen.has(a.section.id)) {
+            seen.add(a.section.id);
+            uniqueSections.push(a.section);
+          }
+        }
+        setSections(uniqueSections);
       } catch (e) {
         console.error(e);
       } finally {
@@ -42,7 +51,7 @@ export default function FacultyReports() {
   };
 
   return (
-    <Protected allow={["FACULTY", "ADMIN", "HOD"]}>
+    <Protected allow={["FACULTY"]}>
       <DashboardShell role="FACULTY" pageTitle="Result Reports" pageSubtitle="Calculate and publish academic results">
         <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
           <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between">

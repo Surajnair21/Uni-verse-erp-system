@@ -7,7 +7,7 @@ import PDFDocument from 'pdfkit'
 const router = Router()
 
 // Calculate results (Admin / Faculty)
-router.post('/calculate', requireAuth, can('create', 'ia'), async (req, res) => {
+router.post('/calculate', requireAuth, can('create', 'results'), async (req, res) => {
   try {
     const { sectionId } = req.body
     if (!sectionId) return res.status(400).json({ message: 'sectionId is required' })
@@ -18,9 +18,12 @@ router.post('/calculate', requireAuth, can('create', 'ia'), async (req, res) => 
   }
 })
 
-// Get my results
+// Get my results (Student only)
 router.get('/my-results', requireAuth, async (req, res) => {
   try {
+    if (req.user!.role !== 'STUDENT') {
+      return res.status(403).json({ message: 'Only students can view their own results.' })
+    }
     const data = await ResultsService.getStudentResults(req.user!.id)
     res.json(data)
   } catch (e: any) {
@@ -29,7 +32,7 @@ router.get('/my-results', requireAuth, async (req, res) => {
 })
 
 // Get student results by ID (Admin / Faculty / HOD)
-router.get('/student/:id', requireAuth, can('read', 'ia'), async (req, res) => {
+router.get('/student/:id', requireAuth, can('read', 'results'), async (req, res) => {
   try {
     const studentId = String(req.params.id)
     const data = await ResultsService.getStudentResults(studentId)
@@ -40,7 +43,7 @@ router.get('/student/:id', requireAuth, can('read', 'ia'), async (req, res) => {
 })
 
 // Export PDF Mark Sheet
-router.get('/student/:id/export', requireAuth, async (req, res) => {
+router.get('/student/:id/export', requireAuth, can('read', 'results'), async (req, res) => {
   try {
     const studentId = String(req.params.id)
     const data = await ResultsService.getStudentResults(studentId)

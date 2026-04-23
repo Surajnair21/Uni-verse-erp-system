@@ -24,7 +24,7 @@ router.get('/', requireAuth, async (req, res) => {
 })
 
 // POST /api/notices (Admin/HOD only)
-router.post('/', requireAuth, can('create', 'master'), async (req, res) => {
+router.post('/', requireAuth, can('create', 'notices'), async (req, res) => {
   try {
     const data = createNoticeSchema.parse(req.body)
     const notice = await NoticesService.createNotice(req.user!, data)

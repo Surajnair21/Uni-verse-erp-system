@@ -36,14 +36,17 @@ export class NoticesService {
 
     const myAudiences = roleAudienceMap[user.role] || ['ALL']
 
+    const orClauses: any[] = [
+      { audience: { in: myAudiences }, departmentId: null },
+    ]
+
+    // Only show department-scoped notices if user belongs to a department
+    if (user.departmentId) {
+      orClauses.push({ audience: 'DEPARTMENT', departmentId: user.departmentId })
+    }
+
     return prisma.notice.findMany({
-      where: {
-        OR: [
-          { audience: { in: myAudiences }, departmentId: null },
-          // Department specific
-          { audience: 'DEPARTMENT', departmentId: user.departmentId || undefined }
-        ]
-      },
+      where: { OR: orClauses },
       orderBy: { createdAt: 'desc' },
       include: { author: { select: { name: true, role: true } }, department: true }
     })
