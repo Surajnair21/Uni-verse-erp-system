@@ -1,7 +1,7 @@
 import { useState, FormEvent, useEffect } from "react";
 import { apiFetch } from "@/lib/api";
 import { Megaphone, X, Loader2 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 
 export function PublishNoticeModal({ onClose, onSuccess }: { onClose: () => void, onSuccess: () => void }) {
   const [title, setTitle] = useState("");
@@ -49,59 +49,61 @@ export function PublishNoticeModal({ onClose, onSuccess }: { onClose: () => void
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/30 backdrop-blur-sm">
       <motion.div 
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
+        initial={{ opacity: 0, scale: 0.95, y: 10 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        className="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden"
+        className="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden border border-slate-200"
       >
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50">
-          <div className="flex items-center gap-2 font-semibold text-slate-800">
-            <Megaphone className="w-5 h-5 text-indigo-500" />
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+          <div className="flex items-center gap-2.5 font-semibold text-slate-800">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-100">
+              <Megaphone className="w-4 h-4 text-indigo-600" />
+            </div>
             Publish New Notice
           </div>
-          <button onClick={onClose} className="p-1 hover:bg-slate-200 rounded-lg transition text-slate-400 hover:text-slate-600">
+          <button onClick={onClose} className="p-1.5 hover:bg-slate-100 rounded-lg transition text-slate-400 hover:text-slate-600">
             <X className="w-5 h-5" />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          {error && <div className="text-sm text-red-600 bg-red-50 p-3 rounded-lg border border-red-100">{error}</div>}
+          {error && <div className="text-sm text-red-600 bg-red-50 p-3 rounded-xl border border-red-100">{error}</div>}
           
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Title</label>
+            <label className="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wider">Title</label>
             <input 
               required
               type="text" 
               value={title} 
               onChange={e => setTitle(e.target.value)}
-              className="w-full border border-slate-200 rounded-xl px-4 py-2 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition"
+              className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10 transition bg-slate-50/50"
               placeholder="e.g. End Semester Exam Schedule"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Content</label>
+            <label className="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wider">Content</label>
             <textarea 
               required
               rows={4}
               value={content} 
               onChange={e => setContent(e.target.value)}
-              className="w-full border border-slate-200 rounded-xl px-4 py-2 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition resize-none"
+              className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10 transition resize-none bg-slate-50/50"
               placeholder="Detailed notice information..."
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Audience</label>
+              <label className="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wider">Audience</label>
               <select 
                 value={audience} 
                 onChange={e => setAudience(e.target.value)}
-                className="w-full border border-slate-200 rounded-xl px-4 py-2 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition bg-white"
+                className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10 transition bg-slate-50/50"
               >
-                <option value="ALL">Everyone & Global</option>
+                <option value="ALL">Everyone &amp; Global</option>
                 <option value="STUDENT">All Students</option>
                 <option value="FACULTY">All Faculty</option>
                 <option value="DEPARTMENT">Specific Department</option>
@@ -109,12 +111,12 @@ export function PublishNoticeModal({ onClose, onSuccess }: { onClose: () => void
             </div>
             {audience === "DEPARTMENT" && (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Target Department</label>
+                <label className="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wider">Target Department</label>
                 <select 
                   required
                   value={departmentId} 
                   onChange={e => setDepartmentId(e.target.value)}
-                  className="w-full border border-slate-200 rounded-xl px-4 py-2 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition bg-white"
+                  className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10 transition bg-slate-50/50"
                 >
                   <option value="">Select Dept...</option>
                   {departments.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
@@ -127,14 +129,14 @@ export function PublishNoticeModal({ onClose, onSuccess }: { onClose: () => void
             <button 
               type="button" 
               onClick={onClose}
-              className="px-5 py-2 rounded-xl text-slate-600 font-medium hover:bg-slate-100 transition"
+              className="px-5 py-2.5 rounded-xl text-slate-600 font-medium hover:bg-slate-100 transition border border-slate-200"
             >
               Cancel
             </button>
             <button 
               type="submit" 
               disabled={loading}
-              className="px-5 py-2 rounded-xl bg-indigo-600 text-white font-medium hover:bg-indigo-700 flex items-center gap-2 transition disabled:opacity-50"
+              className="px-5 py-2.5 rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700 flex items-center gap-2 transition shadow-sm disabled:opacity-50"
             >
               {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Megaphone className="w-4 h-4" />}
               Publish Notice

@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Plus, RefreshCw, Trash2, Pencil } from "lucide-react";
+import { Plus, RefreshCw, Trash2, Pencil, Database } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { apiFetch } from "../../lib/api";
 
@@ -29,7 +29,7 @@ export default function MasterEntityPanel({
 }: {
   title: string;
   subtitle?: string;
-  endpoint: string; // e.g. /api/master/departments
+  endpoint: string;
   fields: Field[];
   listLabelKey?: string;
   listSecondaryKey?: string;
@@ -124,60 +124,55 @@ export default function MasterEntityPanel({
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+    <div className="space-y-5">
+      {/* Header */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <div className="text-lg font-semibold">{title}</div>
-          {subtitle && <div className="text-sm text-slate-300">{subtitle}</div>}
+          <h2 className="text-lg font-bold text-slate-900">{title}</h2>
+          {subtitle && <p className="text-sm text-slate-500 mt-0.5">{subtitle}</p>}
         </div>
-
         <button
           onClick={load}
-          className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm hover:bg-white/10 transition"
+          className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition shadow-sm"
         >
           <RefreshCw className={cx("h-4 w-4", loading && "animate-spin")} />
           Refresh
         </button>
       </div>
 
-      {/* 3D Card */}
-      <div
-        className="grid grid-cols-1 gap-4 lg:grid-cols-[380px_1fr]"
-        style={{ transformStyle: "preserve-3d" }}
-      >
-        {/* Form */}
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[380px_1fr]">
+        {/* Form Card */}
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          className="rounded-2xl border border-white/10 bg-linear-to-br from-white/10 to-white/5 p-4"
-          style={{
-            transform: "perspective(900px) rotateY(-2deg)",
-          }}
+          className="rounded-2xl border border-slate-200 bg-white shadow-sm p-5"
         >
-          <div className="flex items-center justify-between">
-            <div className="text-sm font-semibold">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-semibold text-slate-800">
               {mode === "create" ? "Create" : "Edit"} {title}
-            </div>
+            </h3>
             {mode === "edit" && (
               <button
                 onClick={resetForm}
-                className="text-xs text-slate-300 hover:text-white transition"
+                className="text-xs text-slate-500 hover:text-indigo-600 font-medium transition"
               >
                 Cancel edit
               </button>
             )}
           </div>
 
-          <div className="mt-3 space-y-3">
+          <div className="space-y-3.5">
             {fields.map((f) => (
               <div key={f.key}>
-                <label className="text-xs text-slate-300">{f.label}</label>
+                <label className="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wider">
+                  {f.label}
+                </label>
 
                 {f.type === "select" ? (
                   <select
                     value={form[f.key] ?? ""}
                     onChange={(e) => setForm((p) => ({ ...p, [f.key]: e.target.value }))}
-                    className="mt-1 w-full rounded-xl border border-white/10 bg-slate-950/40 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-orange-400/30"
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 py-2.5 text-sm text-slate-800 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10 transition"
                   >
                     <option value="">{f.placeholder || "Select..."}</option>
                     {f.options.map((o) => (
@@ -192,7 +187,7 @@ export default function MasterEntityPanel({
                     onChange={(e) => setForm((p) => ({ ...p, [f.key]: e.target.value }))}
                     type={f.type}
                     placeholder={f.placeholder}
-                    className="mt-1 w-full rounded-xl border border-white/10 bg-slate-950/40 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-orange-400/30"
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 py-2.5 text-sm text-slate-800 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10 transition"
                   />
                 )}
               </div>
@@ -201,80 +196,91 @@ export default function MasterEntityPanel({
             <button
               onClick={submit}
               disabled={busyId === "form"}
-              className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-orange-500/20 ring-1 ring-orange-400/30 px-3 py-2 text-sm font-medium hover:bg-orange-500/25 transition disabled:opacity-60"
+              className="mt-1 flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 transition shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Plus className="h-4 w-4" />
               {busyId === "form" ? "Saving..." : mode === "create" ? "Create" : "Update"}
             </button>
 
             {error && (
-              <div className="rounded-xl border border-red-400/20 bg-red-500/10 p-3 text-sm text-red-200">
+              <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700 font-medium">
                 {error}
               </div>
             )}
           </div>
         </motion.div>
 
-        {/* List */}
+        {/* List Card */}
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          className="rounded-2xl border border-white/10 bg-white/5 p-4"
-          style={{
-            transform: "perspective(900px) rotateY(1deg)",
-          }}
+          transition={{ delay: 0.05 }}
+          className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden"
         >
-          <div className="text-sm font-semibold">Records</div>
+          <div className="flex items-center gap-2 px-5 py-4 border-b border-slate-100 bg-slate-50/50">
+            <Database className="h-4 w-4 text-slate-400" />
+            <h3 className="text-sm font-semibold text-slate-800">Records</h3>
+            <span className="ml-auto text-xs text-slate-500 font-medium bg-slate-100 px-2 py-0.5 rounded-full">
+              {items.length}
+            </span>
+          </div>
 
-          <div className="mt-3 overflow-x-auto">
+          <div className="overflow-x-auto">
             <table className="min-w-full text-sm">
-              <thead className="text-slate-300">
-                <tr className="border-b border-white/10">
-                  <th className="py-2 text-left">Name</th>
-                  {listSecondaryKey && <th className="py-2 text-left">Meta</th>}
-                  <th className="py-2 text-right">Actions</th>
+              <thead>
+                <tr className="border-b border-slate-100 bg-slate-50/30">
+                  <th className="py-3 px-5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Name</th>
+                  {listSecondaryKey && <th className="py-3 px-5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Meta</th>}
+                  <th className="py-3 px-5 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
-              <tbody>
-                {items.map((it) => (
-                  <tr key={it.id} className="border-b border-white/5">
-                    <td className="py-3">
-                      <div className="font-medium">{it[listLabelKey] ?? "-"}</div>
-                      <div className="text-xs text-slate-400">ID: {it.id}</div>
+              <tbody className="divide-y divide-slate-50">
+                {items.map((it, idx) => (
+                  <motion.tr
+                    key={it.id}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: idx * 0.02 }}
+                    className="hover:bg-slate-50/80 transition"
+                  >
+                    <td className="py-3.5 px-5">
+                      <div className="font-medium text-slate-800">{it[listLabelKey] ?? "-"}</div>
+                      <div className="text-xs text-slate-400 mt-0.5 font-mono">ID: {it.id.slice(0, 12)}…</div>
                     </td>
 
                     {listSecondaryKey && (
-                      <td className="py-3 text-slate-200">
+                      <td className="py-3.5 px-5 text-slate-600">
                         {String(it[listSecondaryKey] ?? "-")}
                       </td>
                     )}
 
-                    <td className="py-3">
+                    <td className="py-3.5 px-5">
                       <div className="flex justify-end gap-2">
                         <button
                           onClick={() => startEdit(it)}
-                          className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs hover:bg-white/10 transition"
+                          className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 hover:border-indigo-200 transition"
                         >
-                          <Pencil className="h-3.5 w-3.5" />
+                          <Pencil className="h-3 w-3" />
                           Edit
                         </button>
                         <button
                           onClick={() => remove(it.id)}
                           disabled={busyId === it.id}
-                          className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs hover:bg-white/10 transition disabled:opacity-60"
+                          className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition disabled:opacity-50"
                         >
-                          <Trash2 className="h-3.5 w-3.5" />
-                          {busyId === it.id ? "Deleting..." : "Delete"}
+                          <Trash2 className="h-3 w-3" />
+                          {busyId === it.id ? "..." : "Delete"}
                         </button>
                       </div>
                     </td>
-                  </tr>
+                  </motion.tr>
                 ))}
 
                 {!loading && items.length === 0 && (
                   <tr>
-                    <td colSpan={listSecondaryKey ? 3 : 2} className="py-8 text-center text-slate-400">
-                      No records yet. Create your first one on the left.
+                    <td colSpan={listSecondaryKey ? 3 : 2} className="py-12 text-center">
+                      <Database className="h-8 w-8 text-slate-200 mx-auto mb-2" />
+                      <p className="text-sm text-slate-400">No records yet. Create your first one.</p>
                     </td>
                   </tr>
                 )}

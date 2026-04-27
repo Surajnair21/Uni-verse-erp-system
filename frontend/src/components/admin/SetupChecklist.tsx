@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { CheckCircle2, Circle, ArrowRight } from "lucide-react";
+import { CheckCircle2, Circle, ArrowRight, ListChecks } from "lucide-react";
 import Link from "next/link";
 
 export default function SetupChecklist({
@@ -29,66 +29,91 @@ export default function SetupChecklist({
   const pct = Math.round((doneCount / steps.length) * 100);
 
   return (
-    <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1fr_260px]">
-      <div className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4">
-        <div className="flex items-start justify-between">
-          <div>
-            <div className="text-sm font-semibold text-slate-900">Setup Progress</div>
-            <div className="text-xs text-slate-600 mt-1">
-              Finish these once. Everything else depends on this structure.
-            </div>
+    <div className="grid grid-cols-1 gap-5 xl:grid-cols-[1fr_280px]">
+      {/* Checklist */}
+      <div className="rounded-2xl bg-white border border-slate-200/80 shadow-sm overflow-hidden">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
+          <div className="flex items-center gap-2">
+            <ListChecks className="h-4 w-4 text-indigo-500" />
+            <h3 className="text-sm font-semibold text-slate-800">Setup Progress</h3>
           </div>
-
           <div className="text-right">
-            <div className="text-2xl font-semibold text-slate-900">{pct}%</div>
-            <div className="text-xs text-slate-600">{doneCount}/{steps.length} complete</div>
+            <span className="text-lg font-bold text-slate-900">{pct}%</span>
+            <span className="text-xs text-slate-500 ml-1.5">{doneCount}/{steps.length}</span>
           </div>
         </div>
 
-        <div className="mt-4 space-y-2">
+        {/* Progress bar */}
+        <div className="px-5 pt-4 pb-2">
+          <div className="h-2 w-full rounded-full bg-slate-100 overflow-hidden">
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: `${pct}%` }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+              className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-sky-500"
+            />
+          </div>
+        </div>
+
+        <div className="p-5 pt-3 space-y-2">
           {steps.map((s, idx) => (
             <motion.div
               key={s.key}
               initial={{ opacity: 0, x: -8 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: idx * 0.05 }}
-              className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-3 py-2"
+              className={`flex items-center justify-between rounded-xl px-4 py-2.5 transition ${
+                s.done
+                  ? "bg-emerald-50/80 border border-emerald-100"
+                  : "bg-slate-50 border border-slate-100"
+              }`}
             >
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2.5">
                 {s.done ? (
-                  <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                  <CheckCircle2 className="h-4 w-4 text-emerald-500" />
                 ) : (
-                  <Circle className="h-4 w-4 text-slate-400" />
+                  <Circle className="h-4 w-4 text-slate-300" />
                 )}
-                <div className="text-sm text-slate-800">{s.label}</div>
+                <span className={`text-sm ${s.done ? "text-emerald-700 font-medium" : "text-slate-600"}`}>
+                  {s.label}
+                </span>
               </div>
-
-              <div className="text-xs text-slate-600">
+              <span className={`text-xs font-semibold ${s.done ? "text-emerald-600" : "text-slate-400"}`}>
                 {s.done ? "Done" : "Pending"}
-              </div>
+              </span>
             </motion.div>
           ))}
         </div>
 
-        <div className="mt-4">
+        <div className="px-5 pb-5">
           <Link
             href="/admin/master"
-            className="inline-flex items-center gap-2 rounded-xl bg-orange-500 px-3 py-2 text-sm text-white hover:bg-orange-600 transition"
+            className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 transition shadow-sm"
           >
             Go to Master Data <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
       </div>
 
-      <div className="rounded-2xl bg-gradient-to-br from-orange-50 to-sky-50 border border-slate-200 shadow-sm p-4">
-        <div className="text-sm font-semibold text-slate-900">JKLU Context</div>
-        <div className="mt-2 text-xs text-slate-700 leading-relaxed">
-          Build the academic tree first (Dept → Program → Course → Semester → Section).
-          Once ready, we’ll add attendance, IA marks, results, and analytics.
+      {/* Context Card */}
+      <div className="rounded-2xl bg-gradient-to-br from-indigo-50 to-sky-50 border border-indigo-100/50 shadow-sm p-5">
+        <div className="text-sm font-bold text-slate-800">JKLU Workflow</div>
+        <div className="mt-3 text-xs text-slate-600 leading-relaxed">
+          Build the academic tree first:
         </div>
-        <div className="mt-3 text-xs text-slate-600">
-          Jaipur campus workflow focus.
+        <div className="mt-2 space-y-1.5">
+          {["Department", "Program", "Course", "Semester", "Section"].map((step, i) => (
+            <div key={step} className="flex items-center gap-2 text-xs text-slate-700">
+              <div className="flex h-5 w-5 items-center justify-center rounded-md bg-white text-[10px] font-bold text-indigo-600 border border-indigo-100 shadow-sm">
+                {i + 1}
+              </div>
+              {step}
+            </div>
+          ))}
         </div>
+        <p className="mt-4 text-xs text-slate-500">
+          Once set up, you can manage attendance, IA marks, and results.
+        </p>
       </div>
     </div>
   );
