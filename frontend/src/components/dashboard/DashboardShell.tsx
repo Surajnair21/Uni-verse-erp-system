@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { ChatBot } from "./ChatBot";
 import { useAuth } from "@/context/AuthContext";
 import { useState } from "react";
 
@@ -252,6 +253,7 @@ export default function DashboardShell({
           </main>
         </div>
       </div>
+      {role === "STUDENT" && <ChatBot />}
     </div>
   );
 }

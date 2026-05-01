@@ -75,12 +75,7 @@ export default function StudentHome() {
               ) : (
                 <div className="text-sm text-violet-200 mt-1.5">You are not linked to a section yet — contact Admin.</div>
               )}
-              {overallAttPct !== null && (
-                <div className="mt-3 inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-full px-3 py-1.5 text-xs font-semibold">
-                  Overall Attendance: {overallAttPct}%
-                  {overallAttPct < 75 && <AlertTriangle className="w-3.5 h-3.5 text-amber-300" />}
-                </div>
-              )}
+
             </div>
           </motion.div>
 
